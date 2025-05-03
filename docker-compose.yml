@@ -1,0 +1,20 @@
+include:
+  - ./api/superbase/docker/docker-compose.yml
+
+services:
+  api:
+    container_name: "travelroot_backend"
+    #    restart: always
+    environment:
+      ENVIRONMENT: development
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    volumes:
+      - "./backend:/opt/app/api"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rest
+    # networks:
+    #     - db
