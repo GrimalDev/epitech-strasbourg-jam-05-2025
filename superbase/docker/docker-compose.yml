@@ -5,8 +5,6 @@
 #   Destroy:            docker compose -f docker-compose.yml -f ./dev/docker-compose.dev.yml down -v --remove-orphans
 #   Reset everything:  ./reset.sh
 
-name: supabase
-
 services:
   studio:
     container_name: supabase-studio
@@ -52,9 +50,11 @@ services:
     container_name: supabase-kong
     image: kong:2.8.1
     restart: unless-stopped
-    ports:
-      - ${KONG_HTTP_PORT}:8000/tcp
-      - ${KONG_HTTPS_PORT}:8443/tcp
+    #ports:
+      #- ${KONG_HTTP_PORT}:8000/tcp
+      #- ${KONG_HTTPS_PORT}:8443/tcp
+    expose:
+      - 8000
     volumes:
       # https://github.com/supabase/supabase/issues/12661
       - ./volumes/api/kong.yml:/home/kong/temp.yml:ro,z
@@ -75,6 +75,18 @@ services:
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
     # https://unix.stackexchange.com/a/294837
     entrypoint: bash -c 'eval "echo \"$$(cat ~/temp.yml)\"" > ~/kong.yml && /docker-entrypoint.sh kong docker-start'
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.travelroot-api.rule=Host(`travelroot.baptistegrimaldi.com`)"
+      - "traefik.http.routers.travelroot-web.entrypoints=web"
+      - "traefik.http.routers.travelroot-web.middlewares=redirect@file"
+      - "traefik.http.routers.travelroot-web-secured.rule=Host(`travelroot.baptistegrimaldi.com`) && PathPrefix(`/`)"
+      - "traefik.http.routers.travelroot-web-secured.priority=10"
+      - "traefik.http.routers.travelroot-web-secured.entrypoints=web-secured"
+      - "traefik.http.services.travelroot-api.loadbalancer.server.port=8000"
+      - "traefik.http.routers.travelroot-web-secured.tls.certresolver=grimresolver"
 
   auth:
     container_name: supabase-auth
@@ -525,3 +537,7 @@ services:
 
 volumes:
   db-config:
+
+networks:
+  web:
+    external: true

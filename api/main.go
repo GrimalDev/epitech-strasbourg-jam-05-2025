@@ -20,5 +20,5 @@ func main() {
 
 	routes.RegisterHackingSpotRoutes(e, handler)
 
-	log.Fatal(e.Start(":8080"))
+	log.Fatal(e.Start(":3333"))
 }
