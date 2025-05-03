@@ -8,6 +8,7 @@ import (
 func RegisterHackingSpotRoutes(e *echo.Echo, handler *handlers.HackingSpotHandler) {
 	e.POST("/hacking-spots", handler.Create)
 	e.GET("/hacking-spots/:id", handler.Get)
+	e.GET("/hacking-spots/localisation", handler.GetFromLatAndLong)
 	e.PUT("/hacking-spots/:id", handler.Update)
 	e.DELETE("/hacking-spots/:id", handler.Delete)
 }
