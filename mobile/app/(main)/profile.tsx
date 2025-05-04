@@ -1,14 +1,24 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '../../constants/theme';
+
+// Palette de couleurs
+const COLORS = {
+  primary: '#2C5F2D',    // Vert foncé pour les éléments principaux
+  secondary: '#97BC62',  // Vert clair pour les éléments secondaires
+  background: '#F5F5F5', // Gris très clair pour le fond
+  text: '#1A1A1A',      // Noir pour le texte principal
+  light: '#FFFFFF',     // Blanc pour les cartes
+  accent: '#97BC62',    // Vert clair pour les accents
+  error: '#E57373',     // Rouge pour les erreurs
+};
 
 const profile = {
   username: 'Explorer42',
   level: 5,
   xp: 320,
   xpToNext: 500,
-  avatarColor: COLORS.light.accent,
+  avatarColor: COLORS.primary,
 };
 
 const stats = [
@@ -34,7 +44,7 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 32 }}>
-      {/* Profil principal */}
+      {/* Main Profile */}
       <View style={styles.profileCard}>
         <View style={[styles.avatar, { backgroundColor: profile.avatarColor }]}> 
           <Text style={styles.avatarText}>{profile.username[0]}</Text>
@@ -44,7 +54,7 @@ export default function ProfileScreen() {
           <View style={styles.levelRow}>
             <Text style={styles.levelBadge}>Level {profile.level}</Text>
           </View>
-          {/* Barre de progression d'XP */}
+          {/* XP Progress Bar */}
           <View style={styles.xpBarContainer}>
             <View style={[styles.xpBar, { width: `${xpPercent * 100}%` }]} />
           </View>
@@ -52,24 +62,24 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      {/* Statistiques */}
+      {/* Statistics */}
       <View style={styles.statsRow}>
         {stats.map((stat, idx) => (
           <View key={stat.label} style={styles.statCard}>
-            <MaterialCommunityIcons name={stat.icon} size={28} color={COLORS.light.primary} />
+            <MaterialCommunityIcons name={stat.icon} size={28} color={COLORS.primary} />
             <Text style={styles.statValue}>{stat.value}</Text>
             <Text style={styles.statLabel}>{stat.label}</Text>
           </View>
         ))}
       </View>
 
-      {/* Découvertes récentes */}
+      {/* Recent Discoveries */}
       <View style={styles.sectionCard}>
         <Text style={styles.sectionTitle}>Recent Discoveries</Text>
         {discoveries.map((item, idx) => (
           <View key={item.title} style={styles.discoveryRow}>
             <View style={styles.discoveryIcon}>
-              <MaterialCommunityIcons name={item.icon} size={22} color={COLORS.light.primary} />
+              <MaterialCommunityIcons name={item.icon} size={22} color={COLORS.primary} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.discoveryTitle}>{item.title}</Text>
@@ -88,7 +98,7 @@ export default function ProfileScreen() {
         <View style={styles.badgesGrid}>
           {badges.map((badge) => (
             <View key={badge.title} style={styles.badgeCard}>
-              <MaterialCommunityIcons name="ribbon" size={32} color={COLORS.light.primary} />
+              <MaterialCommunityIcons name="ribbon" size={32} color={COLORS.primary} />
               <Text style={styles.badgeTitle}>{badge.title}</Text>
               <Text style={styles.badgeDesc}>{badge.desc}</Text>
             </View>
@@ -102,17 +112,21 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF3',
+    backgroundColor: COLORS.background,
     padding: 16,
   },
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.light,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    elevation: 2,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   avatar: {
     width: 56,
@@ -121,16 +135,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   avatarText: {
-    color: '#fff',
+    color: COLORS.background,
     fontSize: 28,
     fontWeight: 'bold',
   },
   username: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#222',
+    color: COLORS.primary,
   },
   levelRow: {
     flexDirection: 'row',
@@ -139,31 +158,41 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   levelBadge: {
-    backgroundColor: '#E6F9E6',
-    color: '#3CB371',
+    backgroundColor: COLORS.secondary,
+    color: COLORS.primary,
     fontWeight: 'bold',
     fontSize: 14,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 2,
     alignSelf: 'flex-start',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   xpBarContainer: {
     height: 8,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: COLORS.text,
     borderRadius: 4,
     marginTop: 4,
     marginBottom: 2,
     overflow: 'hidden',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   xpBar: {
     height: 8,
-    backgroundColor: '#3CB371',
+    backgroundColor: COLORS.primary,
     borderRadius: 4,
   },
   xpText: {
     fontSize: 12,
-    color: '#888',
+    color: COLORS.text,
     marginTop: 2,
   },
   statsRow: {
@@ -173,35 +202,43 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.light,
     borderRadius: 12,
     alignItems: 'center',
     paddingVertical: 16,
     marginHorizontal: 4,
-    elevation: 1,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   statValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#222',
+    color: COLORS.primary,
     marginTop: 4,
   },
   statLabel: {
     fontSize: 13,
-    color: '#888',
+    color: COLORS.text,
     marginTop: 2,
   },
   sectionCard: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.light,
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    elevation: 1,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#222',
+    color: COLORS.primary,
     marginBottom: 12,
   },
   discoveryRow: {
@@ -213,29 +250,39 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#4CAF50',
+    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   discoveryTitle: {
     fontWeight: 'bold',
-    color: '#222',
+    color: COLORS.primary,
     fontSize: 15,
   },
   discoveryDate: {
-    color: '#888',
+    color: COLORS.text,
     fontSize: 12,
   },
   pointsBadge: {
-    backgroundColor: '#FFE9C6',
+    backgroundColor: COLORS.secondary,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 2,
     marginLeft: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   pointsText: {
-    color: '#FFA726',
+    color: COLORS.primary,
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -245,21 +292,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   badgeCard: {
-    backgroundColor: '#F3FAF3',
+    backgroundColor: COLORS.light,
     borderRadius: 12,
     alignItems: 'center',
     padding: 16,
     width: '48%',
     marginBottom: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   badgeTitle: {
     fontWeight: 'bold',
-    color: '#222',
+    color: COLORS.primary,
     fontSize: 15,
     marginTop: 8,
   },
   badgeDesc: {
-    color: '#3CB371',
+    color: COLORS.primary,
     fontSize: 13,
     textAlign: 'center',
     marginTop: 2,

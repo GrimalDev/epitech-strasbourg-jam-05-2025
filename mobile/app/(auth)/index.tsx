@@ -1,19 +1,30 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Dimensions,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
+
+// Palette de couleurs
+const COLORS = {
+  primary: '#2C5F2D',    // Vert foncé pour les éléments principaux
+  secondary: '#97BC62',  // Vert clair pour les éléments secondaires
+  background: '#F5F5F5', // Gris très clair pour le fond
+  text: '#1A1A1A',      // Noir pour le texte principal
+  light: '#FFFFFF',     // Blanc pour les cartes
+  accent: '#97BC62',    // Vert clair pour les accents
+  error: '#E57373',     // Rouge pour les erreurs
+};
 
 export default function AuthScreen() {
   const router = useRouter();
@@ -56,13 +67,13 @@ export default function AuthScreen() {
     >
       {/* Logo et Titre */}
       <View style={styles.header}>
-        <MaterialCommunityIcons 
-          name="map-marker-multiple" 
-          size={80} 
-          color="#00BFFF" 
+        <Image
+          source={require('../../assets/images/logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
         />
-        <Text style={styles.title}>TravelTool</Text>
-        <Text style={styles.subtitle}>Votre compagnon de voyage</Text>
+        <Text style={styles.title}>TravelRoot</Text>
+        <Text style={styles.subtitle}>Explore the World, Unlock the Code</Text>
       </View>
 
       {/* Boutons d'authentification */}
@@ -71,14 +82,14 @@ export default function AuthScreen() {
           style={[styles.button, styles.loginButton]}
           onPress={() => setShowLoginModal(true)}
         >
-          <Text style={styles.buttonText}>Se connecter</Text>
+          <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={[styles.button, styles.registerButton]}
           onPress={() => setShowRegisterModal(true)}
         >
-          <Text style={styles.buttonText}>S'inscrire</Text>
+          <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
       </View>
 
@@ -94,11 +105,12 @@ export default function AuthScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Connexion</Text>
+            <Text style={styles.modalTitle}>Login</Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <TextInput
               style={styles.input}
               placeholder="Email"
+              placeholderTextColor={COLORS.text}
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
@@ -109,7 +121,8 @@ export default function AuthScreen() {
             />
             <TextInput
               style={styles.input}
-              placeholder="Mot de passe"
+              placeholder="Password"
+              placeholderTextColor={COLORS.text}
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
@@ -125,13 +138,13 @@ export default function AuthScreen() {
                   setError('');
                 }}
               >
-                <Text style={styles.modalButtonText}>Annuler</Text>
+                <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={handleLogin}
               >
-                <Text style={styles.modalButtonText}>Se connecter</Text>
+                <Text style={styles.modalButtonText}>Login</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -150,11 +163,12 @@ export default function AuthScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Inscription</Text>
+            <Text style={styles.modalTitle}>Register</Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <TextInput
               style={styles.input}
               placeholder="Email"
+              placeholderTextColor={COLORS.text}
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
@@ -165,7 +179,8 @@ export default function AuthScreen() {
             />
             <TextInput
               style={styles.input}
-              placeholder="Mot de passe"
+              placeholder="Password"
+              placeholderTextColor={COLORS.text}
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
@@ -181,13 +196,13 @@ export default function AuthScreen() {
                   setError('');
                 }}
               >
-                <Text style={styles.modalButtonText}>Annuler</Text>
+                <Text style={styles.modalButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.modalButton, styles.confirmButton]}
                 onPress={handleRegister}
               >
-                <Text style={styles.modalButtonText}>S'inscrire</Text>
+                <Text style={styles.modalButtonText}>Register</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -200,7 +215,7 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#181A20',
+    backgroundColor: COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -209,15 +224,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 50,
   },
+  logo: {
+    width: 120,
+    height: 120,
+  },
   title: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#fff',
+    color: COLORS.primary,
     marginTop: 20,
   },
   subtitle: {
     fontSize: 16,
-    color: '#888',
+    color: COLORS.text,
     marginTop: 10,
   },
   buttonContainer: {
@@ -228,15 +247,20 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   loginButton: {
-    backgroundColor: '#00BFFF',
+    backgroundColor: COLORS.primary,
   },
   registerButton: {
-    backgroundColor: '#3CB371',
+    backgroundColor: COLORS.secondary,
   },
   buttonText: {
-    color: '#fff',
+    color: COLORS.background,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -247,25 +271,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#23242a',
+    backgroundColor: COLORS.background,
     borderRadius: 15,
     padding: 20,
     width: width * 0.9,
     maxWidth: 400,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#fff',
+    color: COLORS.primary,
     marginBottom: 20,
     textAlign: 'center',
   },
   input: {
-    backgroundColor: '#181A20',
+    backgroundColor: COLORS.light,
     borderRadius: 10,
     padding: 15,
     marginBottom: 15,
-    color: '#fff',
+    color: COLORS.text,
     fontSize: 16,
   },
   modalButtons: {
@@ -280,18 +309,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   cancelButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: COLORS.error,
   },
   confirmButton: {
-    backgroundColor: '#00BFFF',
+    backgroundColor: COLORS.primary,
   },
   modalButtonText: {
-    color: '#fff',
+    color: COLORS.background,
     textAlign: 'center',
     fontWeight: 'bold',
   },
   errorText: {
-    color: '#E53935',
+    color: COLORS.error,
     textAlign: 'center',
     marginBottom: 10,
   },

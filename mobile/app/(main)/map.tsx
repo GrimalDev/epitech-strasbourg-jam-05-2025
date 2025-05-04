@@ -98,6 +98,17 @@ const GEOBOXES = [
   },
 ];
 
+// Palette de couleurs
+const COLORS = {
+  primary: '#2C5F2D',    // Vert foncé pour les éléments principaux
+  secondary: '#97BC62',  // Vert clair pour les éléments secondaires
+  background: '#F5F5F5', // Gris très clair pour le fond
+  text: '#1A1A1A',      // Noir pour le texte principal
+  light: '#FFFFFF',     // Blanc pour les cartes
+  accent: '#97BC62',    // Vert clair pour les accents
+  error: '#E57373',     // Rouge pour les erreurs
+};
+
 function formatTimeLeft(seconds: number) {
   const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
   const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
@@ -243,10 +254,10 @@ export default function MapScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <MapView
         ref={mapRef}
-        style={{ flex: 1 }}
+        style={styles.map}
         initialRegion={{
           latitude: 48.5846,
           longitude: 7.7468,
@@ -267,17 +278,11 @@ export default function MapScreen() {
               tracksViewChanges={true}
               zIndex={999}
             >
-              <View style={{
-                width: 40,
-                height: 40,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'transparent',
-              }}>
+              <View style={styles.markerContainer}>
                 <MaterialCommunityIcons
                   name="map-marker"
-                  size={40}
-                  color={isDone ? '#E53935' : '#43A047'}
+                  size={30}
+                  color={isDone ? COLORS.error : COLORS.primary}
                 />
               </View>
             </Marker>
@@ -291,19 +296,11 @@ export default function MapScreen() {
             }}
             zIndex={1}
           >
-            <View style={{
-              backgroundColor: '#fff',
-              borderRadius: 12,
-              padding: 2,
-              width: 24,
-              height: 24,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
+            <View style={styles.markerContainer}>
               <MaterialCommunityIcons 
                 name="account-circle" 
-                size={20} 
-                color="#00BFFF"
+                size={30} 
+                color={COLORS.primary}
               />
             </View>
           </Marker>
@@ -380,20 +377,20 @@ export default function MapScreen() {
                       <Text style={styles.submitBtnText}>Submit Flag</Text>
                     </TouchableOpacity>
                     {flagError && (
-                      <Text style={{ color: '#E53935', marginTop: 4, textAlign: 'center' }}>{flagError}</Text>
+                      <Text style={{ color: COLORS.error, marginTop: 4, textAlign: 'center' }}>{flagError}</Text>
                     )}
                     <Text style={styles.flagHelp}>Connect to the hackbox WiFi, solve the challenge, and submit the flag to complete this challenge</Text>
                   </View>
 
                   {/* Créneaux de réservation */}
                   <View style={styles.sectionCard}>
-                    <Text style={[styles.sectionTitle, { color: '#3CB371' }]}>Available Time Slots</Text>
+                    <Text style={[styles.sectionTitle, { color: COLORS.secondary }]}>Available Time Slots</Text>
                     <Text style={styles.slotHelp}>Réservez votre créneau de 1h30. Les créneaux déjà réservés sont indiqués.</Text>
                     {selectedBox.slots.map((slot, idx) => {
                       const isMine = reservedSlot === idx;
                       return (
                         <View key={idx} style={styles.slotRow}>
-                          <MaterialCommunityIcons name="clock-outline" size={20} color="#3CB371" style={{ marginRight: 8 }} />
+                          <MaterialCommunityIcons name="clock-outline" size={20} color={COLORS.secondary} style={{ marginRight: 8 }} />
                           <Text style={styles.slotTime}>{formatSlotFr(slot.start, slot.end)}</Text>
                           {slot.reserved && !isMine ? (
                             <View style={styles.slotBadgeBooked}>
@@ -434,6 +431,23 @@ export default function MapScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  map: {
+    flex: 1,
+  },
+  markerContainer: {
+    backgroundColor: COLORS.background,
+    padding: 5,
+    borderRadius: 20,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
