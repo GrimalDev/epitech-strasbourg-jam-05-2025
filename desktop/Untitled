@@ -1,0 +1,9 @@
+
+<<<<<<< HEAD
+=======
+		// Return a command that will send both the status and body
+		return tea.Batch(
+			func() tea.Msg { return statusMsg(resp.StatusCode) },
+			func() tea.Msg { return responseBodyMsg(string(bodyBytes)) },
+		)
+>>>>>>> Snippet

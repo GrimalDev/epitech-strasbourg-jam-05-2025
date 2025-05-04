@@ -14,7 +14,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Starting the program...")
+	// fmt.Println("Starting the program...")
 
 	p := tea.NewProgram(initialModel())
 	if _, err := p.Run(); err != nil {
