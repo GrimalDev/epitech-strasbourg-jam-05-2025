@@ -1,129 +1,41 @@
+
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import * as Notifications from 'expo-notifications';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Dimensions, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import {
+  Alert,
+  Dimensions,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import MapView, { Marker, Region } from 'react-native-maps';
+import { fetchHackingSpots, fetchHackingSpot } from '../../services/hackingSpots';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-
 const LEVEL_POINTS = [50, 100, 150, 200, 250];
 
-const GEOBOXES = [
-  {
-    id: 'HCBX-001',
-    title: 'HackBox #001',
-    difficulty: 1, // 1 à 5
-    tags: ['crypto'],
-    description: 'A basic cryptography challenge to test your skills in decoding classical ciphers.',
-    coords: { latitude: 48.8566, longitude: 2.3522 }, // Paris
-    address: 'Paris, France',
-    wifi: { password: 'h4ck1ngF0rFun' },
-    slots: [
-      { start: '09:00', end: '10:30', reserved: false },
-      { start: '10:30', end: '12:00', reserved: true },
-      { start: '13:00', end: '14:30', reserved: false },
-      { start: '14:30', end: '16:00', reserved: false },
-    ],
-    timeLeft: 5188, // en secondes (1h26:28)
-  },
-  {
-    id: 'HCBX-002',
-    title: 'HackBox #002',
-    difficulty: 2,
-    tags: ['web'],
-    description: 'A web challenge to test your skills in XSS and CSRF.',
-    coords: { latitude: 48.8584, longitude: 2.2945 }, // Tour Eiffel
-    address: 'Tour Eiffel, Paris',
-    wifi: { password: 'web4life' },
-    slots: [
-      { start: '09:00', end: '10:30', reserved: false },
-      { start: '10:30', end: '12:00', reserved: false },
-      { start: '13:00', end: '14:30', reserved: true },
-      { start: '14:30', end: '16:00', reserved: false },
-    ],
-    timeLeft: 5400,
-  },
-  {
-    id: 'HCBX-003',
-    title: 'HackBox #003',
-    difficulty: 3,
-    tags: ['reverse'],
-    description: 'Reverse engineering challenge on a custom binary.',
-    coords: { latitude: 48.8606, longitude: 2.3376 }, // Louvre
-    address: 'Louvre, Paris',
-    wifi: { password: 'rev3rseIt' },
-    slots: [
-      { start: '09:00', end: '10:30', reserved: true },
-      { start: '10:30', end: '12:00', reserved: false },
-      { start: '13:00', end: '14:30', reserved: false },
-      { start: '14:30', end: '16:00', reserved: false },
-    ],
-    timeLeft: 3600,
-  },
-  {
-    id: 'HCBX-004',
-    title: 'HackBox #004',
-    difficulty: 1,
-    tags: ['crypto'],
-    description: 'Déchiffrez le message caché pour trouver le flag.',
-    coords: { latitude: 48.5836, longitude: 7.7492 }, // 4 rue du Dôme, Strasbourg (coordonnées corrigées)
-    address: '4 rue du Dôme, Strasbourg',
-    wifi: { password: 'str4sb0urg' },
-    slots: [
-      { start: '09:00', end: '10:30', reserved: false },
-      { start: '10:30', end: '12:00', reserved: false },
-      { start: '13:00', end: '14:30', reserved: true },
-      { start: '14:30', end: '16:00', reserved: false },
-    ],
-    timeLeft: 5400,
-  },
-  {
-    id: 'HCBX-005',
-    title: 'HackBox #005',
-    difficulty: 3,
-    tags: ['crypto'],
-    description: 'Un challenge de cryptographie à résoudre sur la place Kléber.',
-    coords: { latitude: 48.5846, longitude: 7.7468 }, // Place Kléber, Strasbourg
-    address: 'Place Kléber, Strasbourg',
-    wifi: { password: 'kl3b3rflag' },
-    slots: [
-      { start: '09:00', end: '10:30', reserved: false },
-      { start: '10:30', end: '12:00', reserved: false },
-      { start: '13:00', end: '14:30', reserved: false },
-      { start: '14:30', end: '16:00', reserved: false },
-    ],
-    timeLeft: 5400,
-  },
-];
-
-// Palette de couleurs
 const COLORS = {
-  primary: '#2C5F2D',    // Vert foncé pour les éléments principaux
-  secondary: '#97BC62',  // Vert clair pour les éléments secondaires
-  background: '#F5F5F5', // Gris très clair pour le fond
-  text: '#1A1A1A',      // Noir pour le texte principal
-  light: '#FFFFFF',     // Blanc pour les cartes
-  accent: '#97BC62',    // Vert clair pour les accents
-  error: '#E57373',     // Rouge pour les erreurs
+  primary: '#2C5F2D',
+  secondary: '#97BC62',
+  background: '#F5F5F5',
+  text: '#1A1A1A',
+  light: '#FFFFFF',
+  accent: '#97BC62',
+  error: '#E57373',
 };
 
-function formatTimeLeft(seconds: number) {
-  const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-  const s = (seconds % 60).toString().padStart(2, '0');
-  return `${h}:${m}:${s}`;
-}
-
 function formatSlotFr(start: string, end: string) {
-  // start et end sont au format 'HH:MM'
   const [h1, m1] = start.split(':');
   const [h2, m2] = end.split(':');
   return `De ${h1}h${m1} à ${h2}h${m2}`;
 }
 
-// Ajout d'un utilitaire pour comparer l'heure actuelle à l'heure de début du slot
 function isSlotStartReached(slotStart: string) {
   const now = new Date();
   const [h, m] = slotStart.split(':');
@@ -132,125 +44,78 @@ function isSlotStartReached(slotStart: string) {
   return now >= slotDate;
 }
 
-// Fonction utilitaire pour décaler un point si trop proche de la position utilisateur
-function offsetIfNearUser(spot, userLoc) {
-  if (!userLoc) return spot;
-  const dist = Math.sqrt(
-    Math.pow(spot.latitude - userLoc.latitude, 2) +
-    Math.pow(spot.longitude - userLoc.longitude, 2)
-  );
-  if (dist < 0.0005) {
-    // Décale légèrement le spot vers le nord
-    return { ...spot, latitude: spot.latitude + 0.0007 };
-  }
-  return spot;
-}
-
 export default function MapScreen() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [selectedBox, setSelectedBox] = useState<typeof GEOBOXES[0] | null>(null);
+  const [spots, setSpots] = useState<any[]>([]);
+  const [selectedBox, setSelectedBox] = useState<any | null>(null);
   const [flagInput, setFlagInput] = useState('');
+  const [flagError, setFlagError] = useState<string | null>(null);
   const [reservedSlot, setReservedSlot] = useState<number | null>(null);
   const [challengeStarted, setChallengeStarted] = useState(false);
-  const [currentSlotIndex, setCurrentSlotIndex] = useState<number | null>(null);
-  const [notificationId, setNotificationId] = useState<string | null>(null);
-  const [timer, setTimer] = useState<number | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const mapRef = useRef<MapView>(null);
-  const [flagError, setFlagError] = useState<string | null>(null);
+  const lastFetchedCenter = useRef<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission d\'accès à la localisation refusée');
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      if (status !== 'granted') return;
+      let loc = await Location.getCurrentPositionAsync({});
+      setLocation(loc);
     })();
   }, []);
 
-  // Centrage dynamique sur la position utilisateur
-  useEffect(() => {
-    if (location && mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      }, 1000);
-    }
-  }, [location]);
+  const handleRegionChangeComplete = async (region: Region) => {
+    const current = { lat: region.latitude, lng: region.longitude };
+    const last = lastFetchedCenter.current;
 
-  // Réservation d'un slot et notification
-  const handleReserveSlot = async (idx: number) => {
-    setReservedSlot(idx);
-    setCurrentSlotIndex(idx);
-    setChallengeStarted(false);
-    if (selectedBox) {
-      const notifId = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: 'TravelRoot',
-          body: `Votre créneau pour ${selectedBox.title} commence maintenant !`,
-        },
-        trigger: { seconds: 2, repeats: false, type: 'timeInterval' },
-      });
-      setNotificationId(notifId as string);
+    if (!last || Math.abs(current.lat - last.lat) > 0.001 || Math.abs(current.lng - last.lng) > 0.001) {
+      try {
+        const data = await fetchHackingSpots(current.lat, current.lng);
+        setSpots(data);
+        lastFetchedCenter.current = current;
+      } catch (error) {
+        console.warn('Erreur API');
+      }
     }
   };
 
-  // Commencer le challenge
-  const handleStartChallenge = () => {
-    setChallengeStarted(true);
-    if (selectedBox) {
-      setTimer(selectedBox.timeLeft ?? 5400);
+  const handleMarkerPress = async (spot: any) => {
+    try {
+      const detailed = await fetchHackingSpot(spot.id);
+      setSelectedBox({ ...spot, ...detailed });
+    } catch (err) {
+      console.warn("Erreur lors du chargement du détail du spot :", err);
+      setSelectedBox(spot);
     }
   };
 
-  // Décompte du timer
-  useEffect(() => {
-    if (challengeStarted && timer !== null && timer > 0) {
-      intervalRef.current = setInterval(() => {
-        setTimer((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
-      }, 1000);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [challengeStarted]);
-
-  useEffect(() => {
-    if (timer === 0 && intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-  }, [timer]);
-
-  // Fonction d'annulation de réservation
-  const handleCancelReservation = () => {
-    setReservedSlot(null);
-    setCurrentSlotIndex(null);
-    setChallengeStarted(false);
-    setTimer(null);
-  };
-
-  // Soumission du flag
   const handleSubmitFlag = () => {
-    // Pour la démo, on considère que le flag correct est 'flag{root}'
     if (flagInput.trim() !== 'flag{root}') {
-      setFlagError('Ce n\'est pas le bon flag.');
+      setFlagError("Ce n'est pas le bon flag.");
       return;
     }
     setFlagError(null);
     Alert.alert('Bravo !', 'Flag correct, challenge validé !');
   };
 
-  const initialRegion = {
-    latitude: 48.5846, // Centré sur Strasbourg
-    longitude: 7.7468,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.1,
+  const getColor = (difficulty: string) => {
+    if (difficulty === '1') return 'green';
+    if (difficulty === '2') return 'orange';
+    return 'red';
+  };
+
+  const handleReserveSlot = (idx: number) => {
+    setReservedSlot(idx);
+    setChallengeStarted(false);
+  };
+
+  const handleCancelReservation = () => {
+    setReservedSlot(null);
+    setChallengeStarted(false);
+  };
+
+  const handleStartChallenge = () => {
+    setChallengeStarted(true);
   };
 
   return (
@@ -259,110 +124,78 @@ export default function MapScreen() {
         ref={mapRef}
         style={styles.map}
         initialRegion={{
-          latitude: 48.5846,
-          longitude: 7.7468,
+          latitude: location?.coords.latitude || 48.5846,
+          longitude: location?.coords.longitude || 7.7468,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }}
         showsUserLocation
         showsMyLocationButton
         zoomEnabled={true}
+        onRegionChangeComplete={handleRegionChangeComplete}
       >
-        {GEOBOXES.map((box, idx) => {
-          const isDone = reservedSlot !== null && challengeStarted && selectedBox?.id === box.id;
-          return (
-            <Marker
-              key={box.id}
-              coordinate={box.coords}
-              onPress={() => setSelectedBox(box)}
-              tracksViewChanges={true}
-              zIndex={999}
-            >
-              <View style={styles.markerContainer}>
-                <MaterialCommunityIcons
-                  name="map-marker"
-                  size={30}
-                  color={isDone ? COLORS.error : COLORS.primary}
-                />
-              </View>
-            </Marker>
-          );
-        })}
-        {location && (
+        {spots.map((spot) => (
           <Marker
-            coordinate={{
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-            }}
-            zIndex={1}
+            key={spot.id}
+            coordinate={{ latitude: spot.latitude, longitude: spot.longitude }}
+            onPress={() => handleMarkerPress(spot)}
           >
-            <View style={styles.markerContainer}>
-              <MaterialCommunityIcons 
-                name="account-circle" 
-                size={30} 
-                color={COLORS.primary}
-              />
-            </View>
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={30}
+              color={getColor(spot.difficulty)}
+            />
           </Marker>
-        )}
+        ))}
       </MapView>
 
-      {/* Modal fiche challenge responsive */}
       <Modal visible={!!selectedBox} animationType="slide" transparent onRequestClose={() => setSelectedBox(null)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <ScrollView contentContainerStyle={{ paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+            <ScrollView>
               {selectedBox && (
                 <>
-                  {/* Bloc challenge */}
                   <View style={styles.challengeCard}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
                       <View style={styles.statusDot} />
-                      <Text style={styles.challengeTitle}>{selectedBox.title}</Text>
+                      <Text style={styles.challengeTitle}>{selectedBox.name || selectedBox.title}</Text>
                     </View>
-                    {/* Barre de niveau */}
                     <View style={styles.levelBarRow}>
-                      {[1,2,3,4,5].map((lvl) => (
+                      {[1, 2, 3, 4, 5].map((lvl) => (
                         <View
                           key={lvl}
-                          style={[styles.levelDot, lvl <= selectedBox.difficulty ? styles.levelDotActive : styles.levelDotInactive]}
+                          style={[styles.levelDot, lvl <= parseInt(selectedBox.difficulty) ? styles.levelDotActive : styles.levelDotInactive]}
                         />
                       ))}
-                      <Text style={styles.levelPoints}>{LEVEL_POINTS[selectedBox.difficulty-1]} pts</Text>
+                      <Text style={styles.levelPoints}>{LEVEL_POINTS[parseInt(selectedBox.difficulty) - 1]} pts</Text>
                     </View>
                     <View style={styles.tagsRow}>
-                      {selectedBox.tags.map((tag) => (
+                      {(selectedBox.tags || []).map((tag) => (
                         <Text key={tag} style={styles.tag}>{tag}</Text>
                       ))}
                     </View>
                     <Text style={styles.challengeDesc}>{selectedBox.description}</Text>
-                    <Text style={styles.challengeCoords}>📍 {selectedBox.coords.latitude}, {selectedBox.coords.longitude}</Text>
+                    <Text style={styles.sectionTitle}>crypto</Text>
+                    <Text style={styles.sectionTitle}>Déchiffrez le message caché pour trouver le flag.</Text>
+
+                    <Text style={styles.challengeCoords}>📍 {selectedBox.latitude}, {selectedBox.longitude}</Text>
                   </View>
 
-                  {/* Bloc WiFi + timer */}
                   <View style={styles.sectionCard}>
                     <Text style={styles.sectionTitle}>WiFi Connection</Text>
                     <View style={styles.wifiRow}>
                       <View style={styles.wifiCol}>
                         <Text style={styles.wifiLabel}>SSID</Text>
-                        <Text style={styles.wifiValue}>{`spot_${selectedBox.id}`}</Text>
+                        <Text style={styles.wifiValue}>{`${selectedBox.public_id}_spot`}</Text>
                       </View>
                       <View style={styles.wifiCol}>
                         <Text style={styles.wifiLabel}>Password</Text>
-                        <Text style={styles.wifiValue}>{selectedBox.wifi.password}</Text>
+                        <Text style={styles.wifiValue}>{selectedBox.access_point_password}</Text>
                       </View>
                     </View>
-                    <View style={styles.timerRow}>
-                      <MaterialCommunityIcons name="clock-outline" size={18} color="#fff" style={{ marginRight: 4 }} />
-                      <Text style={styles.timerLabel}>Time remaining:</Text>
-                      <Text style={styles.timerValue}>{formatTimeLeft(challengeStarted && timer !== null ? timer : (selectedBox.timeLeft ?? 0))}</Text>
-                    </View>
-                    <View style={styles.progressBarBg}>
-                      <View style={[styles.progressBarFill, { width: `${((selectedBox.timeLeft ?? 0) / 5400) * 100}%` }]} />
-                    </View>
+                    
                   </View>
 
-                  {/* Bloc soumission flag */}
                   <View style={styles.sectionCard}>
                     <Text style={styles.sectionTitle}>Submit Flag</Text>
                     <Text style={styles.flagLabel}>Flag from challenge:</Text>
@@ -382,11 +215,10 @@ export default function MapScreen() {
                     <Text style={styles.flagHelp}>Connect to the hackbox WiFi, solve the challenge, and submit the flag to complete this challenge</Text>
                   </View>
 
-                  {/* Créneaux de réservation */}
                   <View style={styles.sectionCard}>
                     <Text style={[styles.sectionTitle, { color: COLORS.secondary }]}>Available Time Slots</Text>
                     <Text style={styles.slotHelp}>Réservez votre créneau de 1h30. Les créneaux déjà réservés sont indiqués.</Text>
-                    {selectedBox.slots.map((slot, idx) => {
+                    {(selectedBox.slots || []).map((slot, idx) => {
                       const isMine = reservedSlot === idx;
                       return (
                         <View key={idx} style={styles.slotRow}>
@@ -409,7 +241,6 @@ export default function MapScreen() {
                         </View>
                       );
                     })}
-                    {/* Bouton Commencer le challenge */}
                     {reservedSlot !== null && isSlotStartReached(selectedBox.slots[reservedSlot].start) && !challengeStarted && (
                       <TouchableOpacity style={styles.startBtn} onPress={handleStartChallenge}>
                         <Text style={styles.startBtnText}>Commencer le challenge</Text>
