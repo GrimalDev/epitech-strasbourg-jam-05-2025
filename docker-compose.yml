@@ -1,5 +1,5 @@
 include:
-  - ./superbase/docker/docker-compose.yml
+  - ./supabase/docker/docker-compose.yml
 
 services:
   api:
@@ -24,15 +24,13 @@ services:
       - web
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.travelroot-api.rule=Host(`travelroot.baptistegrimaldi.com`) && PathPrefix(`/main`)"
-      - "traefik.http.routers.travelroot-api.priority=20"
-      - "traefik.http.routers.travelroot-api.entrypoints=web-secured"
-      - "traefik.http.routers.travelroot-api.tls=true"
-      - "traefik.http.routers.travelroot-api.tls.certresolver=grimresolver"
-      - "traefik.http.routers.travelroot-api.middlewares=strip-api"
-      - "traefik.http.services.trinity-api.loadbalancer.server.port=3333"
-      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/main"
-
+      - "traefik.http.routers.travelroot-web.rule=Host(`travelroot-box.baptistegrimaldi.com`)"
+      - "traefik.http.routers.travelroot-web.entrypoints=web"
+      - "traefik.http.routers.travelroot-web.middlewares=redirect@file"
+      - "traefik.http.routers.travelroot-web-secured.rule=Host(`travelroot-box.baptistegrimaldi.com`)"
+      - "traefik.http.routers.travelroot-web-secured.entrypoints=web-secured"
+      - "traefik.http.routers.travelroot-web-secured.tls.certresolver=grimresolver"
+      - "traefik.http.services.travelroot-web-secured.loadbalancer.server.port=3333"
 networks:
   web:
     external: true
