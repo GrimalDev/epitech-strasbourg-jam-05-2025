@@ -80,6 +80,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.travelroot-api.rule=Host(`travelroot.baptistegrimaldi.com`)"
+      - "traefik.http.routers.travelroot-web.priority=15"
       - "traefik.http.routers.travelroot-web.entrypoints=web"
       - "traefik.http.routers.travelroot-web.middlewares=redirect@file"
       - "traefik.http.routers.travelroot-web-secured.rule=Host(`travelroot.baptistegrimaldi.com`) && PathPrefix(`/`)"
