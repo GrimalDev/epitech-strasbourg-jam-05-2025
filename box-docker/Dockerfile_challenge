@@ -1,0 +1,30 @@
+# Dockerfile
+FROM ubuntu:20.04
+
+# Avoid interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install OpenSSH server
+RUN apt update && \
+    apt install -y openssh-server && \
+    mkdir /var/run/sshd
+
+# Create a user with weak credentials
+RUN useradd -m -s /bin/bash admin && \
+    echo 'admin:admin' | chpasswd
+
+# Set the flag
+RUN echo "flag_test" > /home/admin/flag.txt && \
+    chown admin:admin /home/admin/flag.txt && \
+    chmod 600 /home/admin/flag.txt
+
+# Allow password authentication
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config
+
+# Expose SSH port
+EXPOSE 22
+
+# Run SSH daemon in foreground
+CMD ["/usr/sbin/sshd", "-D"]
