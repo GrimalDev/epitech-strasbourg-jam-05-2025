@@ -1,8 +1,8 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { COLORS, SHADOWS, SIZES } from "../constants/theme";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, SHADOWS, SIZES } from '../constants/theme';
 
 interface TabBarProps {
   state: any;
@@ -10,11 +10,7 @@ interface TabBarProps {
   navigation: any;
 }
 
-const CustomTabBar: React.FC<TabBarProps> = ({
-  state,
-  descriptors,
-  navigation,
-}) => {
+const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -27,7 +23,7 @@ const CustomTabBar: React.FC<TabBarProps> = ({
 
           const onPress = () => {
             const event = navigation.emit({
-              type: "tabPress",
+              type: 'tabPress',
               target: route.key,
               canPreventDefault: true,
             });
@@ -39,14 +35,14 @@ const CustomTabBar: React.FC<TabBarProps> = ({
 
           const getIconName = () => {
             switch (route.name) {
-              case "map":
-                return isFocused ? "map" : "map-outline";
-              case "profile":
-                return isFocused ? "account" : "account-outline";
-              case "settings":
-                return isFocused ? "cog" : "cog-outline";
+              case 'map':
+                return isFocused ? 'map' : 'map-outline';
+              case 'profile':
+                return isFocused ? 'account' : 'account-outline';
+              case 'settings':
+                return isFocused ? 'cog' : 'cog-outline';
               default:
-                return "help";
+                return 'help';
             }
           };
 
@@ -83,26 +79,26 @@ const CustomTabBar: React.FC<TabBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     height: SIZES.tabBarHeight,
   },
   tabBarContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    height: "100%",
-    backgroundColor: "#FFFFFF",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    height: '100%',
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     ...SHADOWS.light,
   },
   tabButton: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingVertical: 8,
   },
   activeTab: {
@@ -115,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomTabBar;
+export default CustomTabBar; 

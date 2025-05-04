@@ -1,6 +1,6 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { COLORS } from "../constants/theme";
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { COLORS } from '../constants/theme';
 
 const Header = () => {
   return (
@@ -18,15 +18,15 @@ const Header = () => {
 const styles = StyleSheet.create({
   container: {
     height: 60,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: COLORS.light.border,
-    justifyContent: "center",
+    justifyContent: 'center',
     paddingHorizontal: 16,
   },
   logoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   logoPlaceholder: {
     width: 32,
@@ -37,9 +37,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#000000",
+    fontWeight: 'bold',
+    color: '#000000',
   },
 });
 
-export default Header;
+export default Header; 

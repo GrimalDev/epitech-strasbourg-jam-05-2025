@@ -1,7 +1,7 @@
-import { Stack } from "expo-router";
-import { useColorScheme } from "react-native";
-import Header from "../components/Header";
-import { ThemeProvider } from "../context/ThemeContext";
+import { Stack } from 'expo-router';
+import { useColorScheme } from 'react-native';
+import Header from '../components/Header';
+import { ThemeProvider } from '../context/ThemeContext';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -12,7 +12,7 @@ export default function RootLayout() {
         screenOptions={{
           header: () => <Header />,
           contentStyle: {
-            backgroundColor: "#FFFFFF",
+            backgroundColor: '#FFFFFF',
             paddingTop: 60,
           },
         }}

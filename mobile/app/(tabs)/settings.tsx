@@ -1,5 +1,5 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -9,27 +9,20 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native";
-import { SIZES } from "../../constants/theme";
-import { useTheme } from "../../context/ThemeContext";
+} from 'react-native';
+import { SIZES } from '../../constants/theme';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function SettingsScreen() {
-  const {
-    colors,
-    preferences,
-    toggleDarkMode,
-    toggleNotifications,
-    updateUserInfo,
-    logout,
-  } = useTheme();
+  const { colors, preferences, toggleDarkMode, toggleNotifications, updateUserInfo, logout } = useTheme();
   const [username, setUsername] = useState(preferences.username);
   const [email, setEmail] = useState(preferences.email);
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = () => {
-    if (username.trim() === "" || email.trim() === "") {
-      Alert.alert("Erreur", "Veuillez remplir tous les champs obligatoires");
+    if (username.trim() === '' || email.trim() === '') {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs obligatoires');
       return;
     }
 
@@ -38,47 +31,44 @@ export default function SettingsScreen() {
       email: email.trim(),
     });
 
-    if (password.trim() !== "") {
+    if (password.trim() !== '') {
       // Ici, vous devrez implémenter la logique de changement de mot de passe
-      Alert.alert("Succès", "Mot de passe changé avec succès");
-      setPassword("");
+      Alert.alert('Succès', 'Mot de passe changé avec succès');
+      setPassword('');
     }
 
     setIsEditing(false);
-    Alert.alert("Succès", "Informations mises à jour avec succès");
+    Alert.alert('Succès', 'Informations mises à jour avec succès');
   };
 
   const handleLogout = () => {
-    Alert.alert("Déconnexion", "Êtes-vous sûr de vouloir vous déconnecter ?", [
-      {
-        text: "Annuler",
-        style: "cancel",
-      },
-      {
-        text: "Déconnexion",
-        style: "destructive",
-        onPress: logout,
-      },
-    ]);
+    Alert.alert(
+      'Déconnexion',
+      'Êtes-vous sûr de vouloir vous déconnecter ?',
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'Déconnexion',
+          style: 'destructive',
+          onPress: logout,
+        },
+      ]
+    );
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Informations utilisateur */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Informations personnelles
-        </Text>
-
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Informations personnelles</Text>
+        
         <View style={styles.inputContainer}>
           <Text style={[styles.label, { color: colors.text }]}>Pseudo</Text>
           <TextInput
-            style={[
-              styles.input,
-              { backgroundColor: colors.input, color: colors.text },
-            ]}
+            style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
             value={username}
             onChangeText={setUsername}
             editable={isEditing}
@@ -90,10 +80,7 @@ export default function SettingsScreen() {
         <View style={styles.inputContainer}>
           <Text style={[styles.label, { color: colors.text }]}>Email</Text>
           <TextInput
-            style={[
-              styles.input,
-              { backgroundColor: colors.input, color: colors.text },
-            ]}
+            style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
             value={email}
             onChangeText={setEmail}
             editable={isEditing}
@@ -105,14 +92,9 @@ export default function SettingsScreen() {
 
         {isEditing && (
           <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: colors.text }]}>
-              Nouveau mot de passe
-            </Text>
+            <Text style={[styles.label, { color: colors.text }]}>Nouveau mot de passe</Text>
             <TextInput
-              style={[
-                styles.input,
-                { backgroundColor: colors.input, color: colors.text },
-              ]}
+              style={[styles.input, { backgroundColor: colors.input, color: colors.text }]}
               value={password}
               onChangeText={setPassword}
               placeholder="Nouveau mot de passe"
@@ -126,24 +108,18 @@ export default function SettingsScreen() {
           style={[styles.button, { backgroundColor: colors.primary }]}
           onPress={isEditing ? handleSave : () => setIsEditing(true)}
         >
-          <Text style={styles.buttonText}>
-            {isEditing ? "Enregistrer" : "Modifier"}
-          </Text>
+          <Text style={styles.buttonText}>{isEditing ? 'Enregistrer' : 'Modifier'}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Préférences */}
       <View style={[styles.section, { backgroundColor: colors.card }]}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Préférences
-        </Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Préférences</Text>
 
         <View style={styles.preferenceItem}>
           <View style={styles.preferenceText}>
             <MaterialCommunityIcons name="bell" size={24} color={colors.text} />
-            <Text style={[styles.preferenceLabel, { color: colors.text }]}>
-              Notifications
-            </Text>
+            <Text style={[styles.preferenceLabel, { color: colors.text }]}>Notifications</Text>
           </View>
           <Switch
             value={preferences.notifications}
@@ -154,14 +130,8 @@ export default function SettingsScreen() {
 
         <View style={styles.preferenceItem}>
           <View style={styles.preferenceText}>
-            <MaterialCommunityIcons
-              name="theme-light-dark"
-              size={24}
-              color={colors.text}
-            />
-            <Text style={[styles.preferenceLabel, { color: colors.text }]}>
-              Mode sombre
-            </Text>
+            <MaterialCommunityIcons name="theme-light-dark" size={24} color={colors.text} />
+            <Text style={[styles.preferenceLabel, { color: colors.text }]}>Mode sombre</Text>
           </View>
           <Switch
             value={preferences.darkMode}
@@ -177,9 +147,7 @@ export default function SettingsScreen() {
         onPress={handleLogout}
       >
         <MaterialCommunityIcons name="logout" size={24} color={colors.text} />
-        <Text style={[styles.logoutText, { color: colors.text }]}>
-          Déconnexion
-        </Text>
+        <Text style={[styles.logoutText, { color: colors.text }]}>Déconnexion</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -188,7 +156,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#FFFFFF',
     padding: 16,
   },
   section: {
@@ -196,7 +164,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 16,
   },
   inputContainer: {
@@ -215,42 +183,42 @@ const styles = StyleSheet.create({
   button: {
     height: SIZES.buttonHeight,
     borderRadius: SIZES.borderRadius,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 8,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   preferenceItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: '#E0E0E0',
   },
   preferenceText: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   preferenceLabel: {
     fontSize: 16,
     marginLeft: 12,
   },
   logoutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     margin: 16,
     padding: 16,
     borderRadius: SIZES.borderRadius,
   },
   logoutText: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginLeft: 8,
   },
-});
+}); 
