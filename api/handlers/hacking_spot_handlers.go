@@ -79,7 +79,7 @@ func (h *HackingSpotHandler) GetFromLatAndLong(c echo.Context) error {
 	// Calculate approximately 1km in degrees
 	// This is a rough approximation as 0.01 degrees is about 1.11km at the equator
 	// and varies with latitude
-	const radiusInDegrees = 0.009
+	const radiusInDegrees = 0.009*20
 
 	var result []models.HackingSpot
 
