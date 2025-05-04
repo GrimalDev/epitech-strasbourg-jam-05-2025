@@ -82,15 +82,13 @@ services:
       - supabase-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.travelroot-api.rule=Host(`travelroot.baptistegrimaldi.com`)"
-      - "traefik.http.routers.travelroot-web.priority=15"
-      - "traefik.http.routers.travelroot-web.entrypoints=web"
-      - "traefik.http.routers.travelroot-web.middlewares=redirect@file"
-      - "traefik.http.routers.travelroot-web-secured.rule=Host(`travelroot.baptistegrimaldi.com`) && PathPrefix(`/`)"
-      - "traefik.http.routers.travelroot-web-secured.priority=10"
-      - "traefik.http.routers.travelroot-web-secured.entrypoints=web-secured"
-      - "traefik.http.services.travelroot-api.loadbalancer.server.port=8000"
-      - "traefik.http.routers.travelroot-web-secured.tls.certresolver=grimresolver"
+      - "traefik.http.routers.supabase-web.rule=Host(`travelroot.baptistegrimaldi.com`)"
+      - "traefik.http.routers.supabase-web.entrypoints=web"
+      - "traefik.http.routers.supabase-web.middlewares=redirect@file"
+      - "traefik.http.routers.supabase-web-secured.rule=Host(`travelroot.baptistegrimaldi.com`)"
+      - "traefik.http.routers.supabase-web-secured.entrypoints=web-secured"
+      - "traefik.http.routers.supabase-web-secured.tls.certresolver=grimresolver"
+      - "traefik.http.services.supabase-web-secured.loadbalancer.server.port=8000"
 
   auth:
     container_name: supabase-auth
