@@ -7,13 +7,47 @@ error_reporting(E_ALL);
 $output = '';
 $error = '';
 $ssid = '';  // Keep SSID value for the form input
+$startingNotice = false;
+
+function commandExec($command)
+{
+	$output = [false, ''];
+
+	$shell = shell_exec("sudo $command");
+
+	if ($shell !== null && $shell !== false && !str_contains($shell, 'not running') && !str_contains($shell, 'Not connected') && !str_contains($shell, 'not found') && !str_contains($shell, 'Failed') && !str_contains($shell, 'failed')) {
+		$output[0] = true;
+	}
+
+	$output[1] = $shell;
+
+	return $output;
+}
+
+function signalCommand($command)
+{
+	file_put_contents('/var/www/html/signal.txt', $command);
+}
+
+function getSignal()
+{
+	$signal = file_get_contents('/var/www/html/signal.txt');
+	if ($signal === false) {
+		return '';
+	}
+	return $signal;
+}
+
+$currentSignal = getSignal();
+
+if (trim($currentSignal) != '') {
+	$startingNotice = true;
+}
 
 // Check if the form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	// --- VERY DANGEROUS PART - Handling User Input ---
-
-	if (!isset($_POST['ssid']) || empty(trim($_POST['ssid']))) {
-		$error = 'Error: SSID cannot be empty.';
+	if (!isset($_POST['ssid']) || !isset($_POST['password']) || empty(trim($_POST['ssid'])) || empty(trim($_POST['password']))) {
+		$error = 'Error: SSID or password cannot be empty.';
 	} else {
 		// Get SSID and Password from POST data
 		$ssid = $_POST['ssid'];
@@ -24,42 +58,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$escaped_ssid = escapeshellarg($ssid);
 		$escaped_password = escapeshellarg($password);
 
-		// --- Construct the command (Example using nmcli) ---
-		// Requires NetworkManager tools installed in the container AND
-		// sufficient permissions (e.g., via --network=host, dbus mapping, NET_ADMIN caps)
-		$command = "nmcli device wifi connect $escaped_ssid password $escaped_password";
+		$currentSignal = getSignal();
 
-		// --- Execute the command ---
-		$descriptorSpec = [
-			0 => ['pipe', 'r'],  // stdin
-			1 => ['pipe', 'w'],  // stdout
-			2 => ['pipe', 'w']  // stderr
-		];
-		$pipes = [];
-		$process = proc_open($command, $descriptorSpec, $pipes);
-
-		$stdout = '';
-		$stderr = '';
-		$exitCode = -1;
-
-		if (is_resource($process)) {
-			fclose($pipes[0]);  // Close stdin
-			$stdout = stream_get_contents($pipes[1]);
-			fclose($pipes[1]);
-			$stderr = stream_get_contents($pipes[2]);
-			fclose($pipes[2]);
-			$exitCode = proc_close($process);
-
-			if ($exitCode === 0) {
-				$output = "Successfully executed command.\n\nOutput:\n" . htmlspecialchars($stdout ?: '(No output)');
-				// Potential issue: nmcli might return 0 even if connection ultimately fails later.
-				// A success here usually means NetworkManager accepted the command.
-			} else {
-				$error = "Command execution failed (Exit Code: $exitCode).\n\nError Output:\n" . htmlspecialchars($stderr ?: '(No error output)') . "\n\nStandard Output:\n" . htmlspecialchars($stdout ?: '(No standard output)');
-			}
+		if (trim($currentSignal) != '') {
+			$startingNotice = true;
 		} else {
-			$error = 'Error: Failed to execute the system command.';
+			signalCommand('connect-wifi.sh ' . $escaped_ssid . ' ' . $escaped_password);
 		}
+
+		/* $outputConnect = commandExec("/var/www/html/connect-wifi.sh $ssid $password"); */
+		/* var_dump($outputConnect); */
+		/* $error = $outputConnect[0] ? '' : 'Could not connect to the wifi with the given credentials.'; */
+		/**/
+		/* if ($outputConnect[0]) { */
+		/* sleep(3); */
+		/* $outputTest = commandExec('/var/www/html/test-wifi-connection.sh'); */
+		/* var_dump($outputTest); */
+		/* $error = $outputTest[0] ? '' : 'Could not connect to the wifi with the given credentials.'; */
+		/* } */
+		/* if ($error == '') { */
+		/* $startingNotice = true; */
+		/* } else { */
+		/* commandExec('/var/www/html/start-ap.sh'); */
+		/* } */
 	}
 }
 ?>
@@ -90,36 +111,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+    <?php if ($startingNotice): ?>
     <div class="container">
-        <h1>Connect Server to Wi-Fi Network</h1>
-
-        <div class="warning">
-            <strong>🚨 SECURITY WARNING:</strong> This form directly controls the server's network connection. Submitting this form attempts to connect the server (where this page is hosted) to the specified Wi-Fi network. This is extremely dangerous and should NEVER be exposed publicly or used in production environments.
+<h1>Starting Access Point...</h1>
+        <div class="success">
+            <strong>Success:</strong> Initializing Hacking environment....
         </div>
-
-        <?php if ($error): ?>
-            <div class="error"><?php echo nl2br(htmlspecialchars($error)); ?></div>
-        <?php endif; ?>
-
-        <?php if ($output): ?>
-            <div class="success">Command Output:</div>
-            <pre><?php echo htmlspecialchars($output); ?></pre>
-        <?php endif; ?>
-
-        <form action="index.php" method="POST">
-            <div>
-                <label for="ssid">Wi-Fi Network Name (SSID):</label>
-                <input type="text" id="ssid" name="ssid" value="<?php echo htmlspecialchars($ssid); ?>" required>
-            </div>
-            <div>
-                <label for="password">Password (optional):</label>
-                <input type="password" id="password" name="password">
-            </div>
-            <div>
-                <button type="submit">Connect to Wi-Fi</button>
-            </div>
-        </form>
-
+        <div class="warning">
+            <strong>Note:</strong> This page will not automatically refresh because this service and the access point will be sutdown. You may need to check the server's status manually.
+        </div>
     </div>
+    <?php else: ?>
+      <div class="container">
+          <h1>Connect Server to Wi-Fi Network</h1>
+
+          <?php if ($error): ?>
+              <div class="error"><?php echo nl2br(htmlspecialchars($error)); ?></div>
+          <?php endif; ?>
+
+          <form action="index.php" method="POST">
+              <div>
+                  <label for="ssid">Wi-Fi Network Name (SSID):</label>
+                  <input type="text" id="ssid" name="ssid" value="<?php echo htmlspecialchars($ssid); ?>" required>
+              </div>
+              <div>
+                  <label for="password">Password (optional):</label>
+                  <input type="password" id="password" name="password">
+              </div>
+              <div>
+                  <button type="submit">Connect to Wi-Fi</button>
+              </div>
+          </form>
+      </div>
+    <?php endif; ?>
 </body>
 </html>
