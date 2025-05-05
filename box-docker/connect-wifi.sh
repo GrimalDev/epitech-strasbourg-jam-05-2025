@@ -38,7 +38,8 @@ sudo systemctl restart dhcpcd
 
 echo "wifi should now be connected to $SSID."
 
-docker build -t ssh-ctf -f Dockerfile_challenge .
-docker run -d -p 2222:22 --name ssh-challenge ssh-ctf
+docker restart ssh-challenge
 
 echo "challenge started"
+
+echo "" > /var/www/html/signal.sh

@@ -26,12 +26,12 @@ function commandExec($command)
 
 function signalCommand($command)
 {
-	file_put_contents('/var/www/html/signal.txt', $command);
+	file_put_contents('/var/www/html/signal.sh', $command);
 }
 
 function getSignal()
 {
-	$signal = file_get_contents('/var/www/html/signal.txt');
+	$signal = file_get_contents('/var/www/html/signal.sh');
 	if ($signal === false) {
 		return '';
 	}
@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		if (trim($currentSignal) != '') {
 			$startingNotice = true;
 		} else {
-			signalCommand('connect-wifi.sh ' . $escaped_ssid . ' ' . $escaped_password);
+			signalCommand("/var/www/html/connect-wifi.sh $escaped_ssid $escaped_password");
 		}
 
 		/* $outputConnect = commandExec("/var/www/html/connect-wifi.sh $ssid $password"); */
